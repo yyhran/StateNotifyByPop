@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Duckov.Modding;
 using Duckov.UI;
 using Duckov.Utilities;
-using Duckov.Modding;
 using ItemStatsSystem;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Text;
 using TMPro;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.UI;
-using Newtonsoft.Json;
 
 namespace StateNotifyByPop
 {
@@ -15,6 +18,7 @@ namespace StateNotifyByPop
     {
         void Awake()
         {
+            LoadConfig();
             Debug.Log("[StateNotifyByPop]: Loaded!!!");
         }
         void OnDestroy()
@@ -22,6 +26,7 @@ namespace StateNotifyByPop
         }
         void OnEnable()
         {
+            LoadConfig();
             Debug.Log("[StateNotifyByPop]: Enabled!!!");
         }
         void OnDisable()
@@ -32,7 +37,7 @@ namespace StateNotifyByPop
         private void Update()
         {
             float num = Time.time - ModBehaviour.last_time;
-            if (num < ModBehaviour.gap_time)
+            if (num < Config.gap_time)
             {
                 return;
             }
@@ -52,45 +57,87 @@ namespace StateNotifyByPop
             float waterPercent = currWater / maxWater;
             float energyPercent = currEnergy / maxEnergy;
 
-            if (waterPercent <= ModBehaviour.water_limit && energyPercent <= ModBehaviour.engery_limit)
+            bool water_now = waterPercent <= Config.water_limit;
+            bool energy_now = energyPercent <= Config.energy_limit;
+
+            if (water_now && energy_now)
             {
-                if (!ModBehaviour.water_last_state && !ModBehaviour.engery_last_state)
+                if (!ModBehaviour.water_last_state || !ModBehaviour.energy_last_state)
                 {
                     main.PopText("我现在又渴又饿", -1f);
-                    ModBehaviour.water_last_state = true;
-                    ModBehaviour.engery_last_state = true;
                 }
             }
-            else if (waterPercent <= ModBehaviour.water_limit)
+            else if (water_now && !ModBehaviour.water_last_state)
             {
-                if (!ModBehaviour.water_last_state)
+                main.PopText("感觉有点渴了", -1f);
+            }
+            else if (energy_now && !ModBehaviour.energy_last_state)
+            {
+                main.PopText("感觉有点饿了", -1f);
+            }
+
+            ModBehaviour.water_last_state = water_now;
+            ModBehaviour.energy_last_state = energy_now;
+        }
+
+
+        void LoadConfig()
+        {
+            try
+            {
+                string configPath = Path.Combine(Application.streamingAssetsPath, ModBehaviour.config_file_name);
+                Debug.Log("[StateNotifyByPop]: Load Config file at: " + configPath);
+                if (File.Exists(configPath))
                 {
-                    main.PopText("我现在好渴啊", -1f);
-                    ModBehaviour.water_last_state = true;
-                    ModBehaviour.engery_last_state = false;
+                    string json = File.ReadAllText(configPath, Encoding.UTF8);
+                    var config = JsonConvert.DeserializeObject<ConfigModel>(json);
+                    if (config != null)
+                    {
+                        Config = config;
+                    }
+                    else
+                    {
+                        SaveConfig();
+                    }
                 }
-            }
-            else if (energyPercent <= ModBehaviour.engery_limit)
-            {
-                if (!ModBehaviour.engery_last_state)
+                else
                 {
-                    main.PopText("我现在好饿啊", -1f);
-                    ModBehaviour.engery_last_state = true;
-                    ModBehaviour.water_last_state = false;
+                    SaveConfig();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                ModBehaviour.water_last_state = false;
-                ModBehaviour.engery_last_state = false;
+                Debug.LogError("[StateNotifyByPop]: Read config failed: " + ex);
             }
         }
 
+        void SaveConfig()
+        {
+            try
+            {
+                string configPath = Path.Combine(Application.streamingAssetsPath, ModBehaviour.config_file_name);
+                string json = JsonConvert.SerializeObject(Config, Formatting.Indented);
+                File.WriteAllText(configPath, json, Encoding.UTF8);
+                Debug.Log("[StateNotifyByPop]: Generate default Config file at: " + configPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[StateNotifyByPop]: Config file save failed: " + ex);
+            }
+        }
+
+        public class ConfigModel
+        {
+            public float water_limit = 0.3f;
+            public float energy_limit = 0.3f;
+            public float gap_time = 1f;
+        }
+
+        public static ConfigModel Config = new ConfigModel();
+
         public static float last_time = 0f;
         private static bool water_last_state = false;
-        private static bool engery_last_state = false;
-        public static float gap_time = 1f;
-        public static float water_limit = 0.3f;
-        public static float engery_limit = 0.3f;
+        private static bool energy_last_state = false;
+        private static string config_file_name = "StateNotifyByPop_Config.json";
     }
 }
