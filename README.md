@@ -1,5 +1,5 @@
 # StateNitifyByPop
-[创意工坊地址](https://steamcommunity.com/sharedfiles/filedetails/?id=3599713506&tscn=1762337992)
+[创意工坊地址](https://steamcommunity.com/sharedfiles/filedetails/?id=3599713506)
 
 ## 简介
 使用角色气泡框提醒水分和能量状态，显示效果如下：
