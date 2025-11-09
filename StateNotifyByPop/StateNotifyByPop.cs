@@ -28,6 +28,7 @@ namespace StateNotifyByPop
         void OnDisable()
         {
             LocalizationManager.OnSetLanguage -= LocalizationProvider.OnLanguageChanged;
+            ConfigManager.SaveConfig();
             Debug.Log("[StateNotifyByPop]: Disable!!!");
         }
 
@@ -48,18 +49,23 @@ namespace StateNotifyByPop
 
             float maxWater = Mathf.Max(1f, main.MaxWater);
             float maxEnergy = Mathf.Max(1f, main.MaxEnergy);
+            float maxHealth = Mathf.Max(1f, main.Health.MaxHealth);
             float currWater = Mathf.Clamp(main.CurrentWater, 0f, maxWater);
             float currEnergy = Mathf.Clamp(main.CurrentEnergy, 0f, maxEnergy);
+            float currHealth = Mathf.Clamp(main.Health.CurrentHealth, 0f, maxHealth);
 
             float waterPercent = currWater / maxWater;
             float energyPercent = currEnergy / maxEnergy;
+            float healthPercent = currHealth / maxHealth;
+
+            // Debug.Log($"[StateNotifyByPop]: Water: {currWater}/{maxWater} ({waterPercent * 100f}%), Energy: {currEnergy}/{maxEnergy} ({energyPercent * 100f}%), Health: {currHealth}/{maxHealth} ({healthPercent * 100f}%)");
 
             var cfg = ConfigManager.Config;
+            // 水分和能量提示
             if (cfg.enable_three_stage)
             {
                 int water_stage = GetStageThreeAuto(waterPercent, cfg.water_limit);
                 int energy_stage = GetStageThreeAuto(energyPercent, cfg.energy_limit);
-                // Debug.Log($"[StateNotifyByPop]: Water Stage: {water_stage}/{waterPercent}, Energy Stage: {energy_stage}/{energyPercent}");
 
                 // 若水和能量同时处于任一非 0 阶段，显示合并提示
                 if (water_stage > 0 && energy_stage > 0)
@@ -102,7 +108,6 @@ namespace StateNotifyByPop
             }
             else
             {
-                // 旧逻辑
                 bool water_now = waterPercent <= cfg.water_limit;
                 bool energy_now = energyPercent <= cfg.energy_limit;
 
@@ -125,6 +130,18 @@ namespace StateNotifyByPop
                 ModBehaviour.water_last_state = water_now;
                 ModBehaviour.energy_last_state = energy_now;
             }
+
+            // 血量提示
+            bool health_now = healthPercent < cfg.health_limit;
+            if (health_now)
+            {
+                if (!health_last_state)
+                {
+                    main.PopText(LocalizationProvider.GetLocalized("SNBP_Health_Low"), -1f);
+                }
+            }
+            ModBehaviour.health_last_state = health_now;
+
         }
 
         // 三阶段自动阈值计算并判定阶段：
@@ -171,6 +188,7 @@ namespace StateNotifyByPop
         private static float gap_time = 0.5f;
         private static bool water_last_state = false;
         private static bool energy_last_state = false;
+        private static bool health_last_state = false;
         private static int water_last_stage = 0;
         private static int energy_last_stage = 0;
     }

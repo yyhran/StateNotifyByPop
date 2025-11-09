@@ -26,7 +26,8 @@ namespace StateNotifyByPop
                 { "SNBP_Energy_Stage2", "感觉非常饿" },
                 { "SNBP_Energy_Stage3", "快要饿死了" },
                 { "SNBP_BothConnector", "，还" },
-                { "SNBP_BothSimple", "我现在又渴又饿" }
+                { "SNBP_BothSimple", "我现在又渴又饿" },
+                { "SNBP_Health_Low", "我感觉有点死了" }
             };
             translations[SystemLanguage.ChineseSimplified] = zh;
 
@@ -40,7 +41,8 @@ namespace StateNotifyByPop
                 { "SNBP_Energy_Stage2", "感覺非常餓" },
                 { "SNBP_Energy_Stage3", "快要餓死了" },
                 { "SNBP_BothConnector", "，還" },
-                { "SNBP_BothSimple", "我現在又渴又餓" }
+                { "SNBP_BothSimple", "我現在又渴又餓" },
+                { "SNBP_Health_Low", "我感覺有點死了" }
             };
             translations[SystemLanguage.ChineseTraditional] = zh_tw;
 
@@ -54,7 +56,8 @@ namespace StateNotifyByPop
                 { "SNBP_Energy_Stage2", "Very hungry" },
                 { "SNBP_Energy_Stage3", "About to starve" },
                 { "SNBP_BothConnector", ", also " },
-                { "SNBP_BothSimple", "I'm thirsty and hungry" }
+                { "SNBP_BothSimple", "I'm thirsty and hungry" },
+                { "SNBP_Health_Low", "I feel kind of dead" }
             };
             translations[SystemLanguage.English] = en;
 
@@ -68,7 +71,8 @@ namespace StateNotifyByPop
                 { "SNBP_Energy_Stage2", "とてもお腹が空いた" },
                 { "SNBP_Energy_Stage3", "もうすぐ餓死しそうだ" },
                 { "SNBP_BothConnector", "、そして" },
-                { "SNBP_BothSimple", "喉が渇いてお腹が空いている" }
+                { "SNBP_BothSimple", "喉が渇いてお腹が空いている" },
+                { "SNBP_Health_Low", "ちょっと死んだ気がする" }
             };
             translations[SystemLanguage.Japanese] = ja;
 
@@ -82,7 +86,8 @@ namespace StateNotifyByPop
                 { "SNBP_Energy_Stage2", "매우 배고프다" },
                 { "SNBP_Energy_Stage3", "거의 굶어 죽을 것 같다" },
                 { "SNBP_BothConnector", " 그리고 " },
-                { "SNBP_BothSimple", "목이 마르고 배고프다" }
+                { "SNBP_BothSimple", "목이 마르고 배고프다" },
+                { "SNBP_Health_Low", "좀 죽은 느낌이야" }
             };
             translations[SystemLanguage.Korean] = ko;
 

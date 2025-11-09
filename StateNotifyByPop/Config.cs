@@ -13,6 +13,7 @@ namespace StateNotifyByPop
         {
             public float water_limit = 0.3f;
             public float energy_limit = 0.3f;
+            public float health_limit = 0.3f;
             public bool enable_three_stage = true;
         }
 
