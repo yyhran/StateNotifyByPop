@@ -17,9 +17,8 @@ namespace StateNotifyByPop
             public bool enable_three_stage = true;
         }
 
-
         private const string ConfigFileName = "StateNotifyByPop.cfg";
-        private static string StreamingPath => Path.Combine(Application.streamingAssetsPath, ConfigFileName);
+        private static string _streamingPath => Path.Combine(Application.streamingAssetsPath, ConfigFileName);
 
         public static ConfigModel Config { get; private set; } = new ConfigModel();
 
@@ -28,9 +27,9 @@ namespace StateNotifyByPop
         {
             try
             {
-                if (File.Exists(StreamingPath))
+                if (File.Exists(_streamingPath))
                 {
-                    string json = File.ReadAllText(StreamingPath, Encoding.UTF8);
+                    string json = File.ReadAllText(_streamingPath, Encoding.UTF8);
                     var config = JsonConvert.DeserializeObject<ConfigModel>(json);
                     if (config != null)
                     {
@@ -57,8 +56,8 @@ namespace StateNotifyByPop
             try
             {
                 string json = JsonConvert.SerializeObject(Config, Formatting.Indented);
-                File.WriteAllText(StreamingPath, json, Encoding.UTF8);
-                Debug.Log("[StateNotifyByPop]: Generate default Config file at: " + StreamingPath);
+                File.WriteAllText(_streamingPath, json, Encoding.UTF8);
+                Debug.Log("[StateNotifyByPop]: Generate default Config file at: " + _streamingPath);
             }
             catch (Exception ex)
             {

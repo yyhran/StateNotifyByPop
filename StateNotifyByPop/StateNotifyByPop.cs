@@ -7,7 +7,7 @@ namespace StateNotifyByPop
 {
 
     public class ModBehaviour : Duckov.Modding.ModBehaviour
-    { 
+    {
         void Awake()
         {
             ConfigManager.LoadConfig();
@@ -15,9 +15,12 @@ namespace StateNotifyByPop
 
             Debug.Log("[StateNotifyByPop]: Loaded!!!");
         }
+
         void OnDestroy()
         {
+
         }
+
         void OnEnable()
         {
             ConfigManager.LoadConfig();
@@ -34,13 +37,13 @@ namespace StateNotifyByPop
 
         private void Update()
         {
-            float num = Time.time - ModBehaviour.last_time;
-            if (num < ModBehaviour.gap_time)
+            float num = Time.time - _lastTime;
+            if (num < _gapTime)
             {
                 return;
             }
 
-            ModBehaviour.last_time = Time.time;
+            _lastTime = Time.time;
             CharacterMainControl main = CharacterMainControl.Main;
             if (main == null || main.Health == null || main.Health.IsDead)
             {
@@ -64,83 +67,83 @@ namespace StateNotifyByPop
             // 水分和能量提示
             if (cfg.enable_three_stage)
             {
-                int water_stage = GetStageThreeAuto(waterPercent, cfg.water_limit);
-                int energy_stage = GetStageThreeAuto(energyPercent, cfg.energy_limit);
+                int waterStage = GetStageThreeAuto(waterPercent, cfg.water_limit);
+                int energyStage = GetStageThreeAuto(energyPercent, cfg.energy_limit);
 
                 // 若水和能量同时处于任一非 0 阶段，显示合并提示
-                if (water_stage > 0 && energy_stage > 0)
+                if (waterStage > 0 && energyStage > 0)
                 {
-                    if (water_stage != ModBehaviour.water_last_stage || energy_stage != ModBehaviour.energy_last_stage)
+                    if (waterStage != _waterLastStage || energyStage != _energyLastStage)
                     {
-                        if (water_stage >= energy_stage)
+                        if (waterStage >= energyStage)
                         {
-                            string msg = LocalizationProvider.GetLocalized("SNBP_Water_Stage" + water_stage);
-                            string extra = LocalizationProvider.GetLocalized("SNBP_Energy_Stage" + energy_stage);
+                            string msg = LocalizationProvider.GetLocalized("SNBP_Water_Stage" + waterStage);
+                            string extra = LocalizationProvider.GetLocalized("SNBP_Energy_Stage" + energyStage);
                             string connector = LocalizationProvider.GetLocalized("SNBP_BothConnector");
                             main.PopText($"{msg}{connector}{extra}", -1f);
                         }
                         else
                         {
-                            string msg = LocalizationProvider.GetLocalized("SNBP_Energy_Stage" + energy_stage);
-                            string extra = LocalizationProvider.GetLocalized("SNBP_Water_Stage" + water_stage);
+                            string msg = LocalizationProvider.GetLocalized("SNBP_Energy_Stage" + energyStage);
+                            string extra = LocalizationProvider.GetLocalized("SNBP_Water_Stage" + waterStage);
                             string connector = LocalizationProvider.GetLocalized("SNBP_BothConnector");
                             main.PopText($"{msg}{connector}{extra}", -1f);
                         }
                     }
                 }
-                else if (water_stage > 0)
+                else if (waterStage > 0)
                 {
-                    if (water_stage != water_last_stage)
+                    if (waterStage != _waterLastStage)
                     {
-                        main.PopText(LocalizationProvider.GetLocalized("SNBP_Water_Stage" + water_stage), -1f);
+                        main.PopText(LocalizationProvider.GetLocalized("SNBP_Water_Stage" + waterStage), -1f);
                     }
                 }
-                else if (energy_stage > 0)
+                else if (energyStage > 0)
                 {
-                    if (energy_stage != energy_last_stage)
+                    if (energyStage != _energyLastStage)
                     {
-                        main.PopText(LocalizationProvider.GetLocalized("SNBP_Energy_Stage" + energy_stage), -1f);
+                        main.PopText(LocalizationProvider.GetLocalized("SNBP_Energy_Stage" + energyStage), -1f);
                     }
                 }
 
-                ModBehaviour.water_last_stage = water_stage;
-                ModBehaviour.energy_last_stage = energy_stage;
+                _waterLastStage = waterStage;
+                _energyLastStage = energyStage;
             }
             else
             {
-                bool water_now = waterPercent <= cfg.water_limit;
-                bool energy_now = energyPercent <= cfg.energy_limit;
+                bool waterNow = waterPercent <= cfg.water_limit;
+                bool energyNow = energyPercent <= cfg.energy_limit;
 
-                if (water_now && energy_now)
+                if (waterNow && energyNow)
                 {
-                    if (!water_last_state || !energy_last_state)
+                    if (!_waterLastState || !_energyLastState)
                     {
                         main.PopText(LocalizationProvider.GetLocalized("SNBP_BothSimple"), -1f);
                     }
                 }
-                else if (water_now && !water_last_state)
+                else if (waterNow && !_waterLastState)
                 {
                     main.PopText(LocalizationProvider.GetLocalized("SNBP_Water_Stage1"), -1f);
                 }
-                else if (energy_now && !energy_last_state)
+                else if (energyNow && !_energyLastState)
                 {
                     main.PopText(LocalizationProvider.GetLocalized("SNBP_Energy_Stage1"), -1f);
                 }
 
-                ModBehaviour.water_last_state = water_now;
-                ModBehaviour.energy_last_state = energy_now;
+                _waterLastState = waterNow;
+                _energyLastState = energyNow;
             }
 
             // 血量提示
-            bool health_now = healthPercent < cfg.health_limit;
-            if (health_now)
+            bool healthNow = healthPercent < cfg.health_limit;
+            if (healthNow)
             {
-                if (!health_last_state)
+                if (!_healthLastState)
                 {
                     main.PopText(LocalizationProvider.GetLocalized("SNBP_Health_Low"), -1f);
                 }
             }
-            ModBehaviour.health_last_state = health_now;
+            _healthLastState = healthNow;
 
         }
 
@@ -184,12 +187,12 @@ namespace StateNotifyByPop
             return 0;
         }
 
-        private static float last_time = 0f;
-        private static float gap_time = 0.5f;
-        private static bool water_last_state = false;
-        private static bool energy_last_state = false;
-        private static bool health_last_state = false;
-        private static int water_last_stage = 0;
-        private static int energy_last_stage = 0;
+        private static float _lastTime = 0f;
+        private static float _gapTime = 0.5f;
+        private static bool _waterLastState = false;
+        private static bool _energyLastState = false;
+        private static bool _healthLastState = false;
+        private static int _waterLastStage = 0;
+        private static int _energyLastStage = 0;
     }
 }
