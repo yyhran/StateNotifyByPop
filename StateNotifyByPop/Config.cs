@@ -14,8 +14,10 @@ namespace StateNotifyByPop
             public float water_limit = 0.3f;
             public float energy_limit = 0.3f;
             public float health_limit = 0.3f;
+            public float stamina_limit = 0.3f;
             public bool enable_three_stage = true;
         }
+
 
         private const string ConfigFileName = "StateNotifyByPop.cfg";
         private static string _streamingPath => Path.Combine(Application.streamingAssetsPath, ConfigFileName);

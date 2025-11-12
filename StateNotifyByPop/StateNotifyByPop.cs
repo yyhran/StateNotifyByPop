@@ -51,6 +51,7 @@ namespace StateNotifyByPop
             }
 
             CheckHealth(main);
+            CheckStamina(main);
             CheckWaterAndEnergy(main);
         }
 
@@ -69,6 +70,33 @@ namespace StateNotifyByPop
             }
 
             _healthLastStage = healthStage;
+        }
+
+        private void CheckStamina(CharacterMainControl main)
+        {
+            float maxStamina = Mathf.Max(1f, main.MaxStamina);
+            float currStamina = Mathf.Clamp(main.CurrentStamina, 0f, maxStamina);
+            float staminaPercent = currStamina / maxStamina;
+
+            var cfg = ConfigManager.Config;
+            int staminaStage = GetStageByPercent(staminaPercent, cfg.stamina_limit);
+
+            if (cfg.enable_three_stage)
+            {
+                if (staminaStage > _staminaLastStage)
+                {
+                    main.PopText(LocalizationProvider.GetLocalized("SNBP_Stamina_Stage" + staminaStage), -1f);
+                }
+            }
+            else
+            {
+                if (staminaStage > 0 && _staminaLastStage == 0)
+                {
+                    main.PopText(LocalizationProvider.GetLocalized("SNBP_Stamina_Stage1"), -1f);
+                }
+            }
+
+            _staminaLastStage = staminaStage;
         }
 
         private void CheckWaterAndEnergy(CharacterMainControl main)
@@ -180,5 +208,6 @@ namespace StateNotifyByPop
         private static int _waterLastStage = 0;
         private static int _energyLastStage = 0;
         private static int _healthLastStage = 0;
+        private static int _staminaLastStage = 0;
     }
 }
