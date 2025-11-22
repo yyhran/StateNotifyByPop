@@ -2,37 +2,66 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SodaCraft.Localizations;
+using HarmonyLib;
+using Duckov.Modding;
 
 namespace StateNotifyByPop
 {
 
     public class ModBehaviour : Duckov.Modding.ModBehaviour
     {
+        private const string HarmonyId = "com.StateNotifyByPop.yyhran";
+        private Harmony? _harmony;
+
         void Awake()
         {
-            ConfigManager.LoadConfig();
-            LocalizationProvider.InitTranslations();
+            try
+            {
+                ConfigManager.LoadConfig();
+                LocalizationProvider.InitTranslations();
+                _harmony = new Harmony(HarmonyId);
+                Debug.Log("[StateNotifyByPop]: Loaded!!!");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[StateNotifyByPop]: Load failed: " + ex.Message);
+            }
 
-            Debug.Log("[StateNotifyByPop]: Loaded!!!");
         }
 
         void OnDestroy()
         {
-
         }
 
         void OnEnable()
         {
-            ConfigManager.LoadConfig();
-            LocalizationManager.OnSetLanguage += LocalizationProvider.OnLanguageChanged;
-            Debug.Log("[StateNotifyByPop]: Enabled!!! ");
+            try
+            {
+                ConfigManager.LoadConfig();
+                LocalizationManager.OnSetLanguage += LocalizationProvider.OnLanguageChanged;
+                _harmony?.PatchAll(typeof(ModBehaviour).Assembly);
+                // _harmony.PatchAll();
+                Debug.Log("[StateNotifyByPop]: Enabled!!! ");
+            }
+            catch(Exception ex)
+            {
+                Debug.LogWarning("[StateNotifyByPop]: Enable failed: " + ex.Message);
+            }
         }
 
         void OnDisable()
         {
-            LocalizationManager.OnSetLanguage -= LocalizationProvider.OnLanguageChanged;
-            ConfigManager.SaveConfig();
-            Debug.Log("[StateNotifyByPop]: Disable!!!");
+            try
+            {
+                LocalizationManager.OnSetLanguage -= LocalizationProvider.OnLanguageChanged;
+                ConfigManager.SaveConfig();
+                _harmony?.UnpatchAll(HarmonyId);
+                Debug.Log("[StateNotifyByPop]: Disable!!!");
+            }
+            catch(Exception ex)
+            {
+                Debug.LogWarning("[StateNotifyByPop]: Disable failed: " + ex.Message);
+            }
         }
 
         private void Update()
